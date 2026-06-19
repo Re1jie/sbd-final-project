@@ -30,9 +30,18 @@
                     Kategori
                 </a>
 
-                <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Pelanggan</a>
-                <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Pesanan</a>
-                <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Laporan</a>
+               <nav class="space-y-1">
+                <a href="{{ route('admin.customers.index') }}" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 {{ request()->routeIs('admin.customers.*') ? 'bg-zinc-100 text-zinc-900 font-semibold' : '' }}">
+                    Pelanggan
+                </a>
+                
+                <a href="{{ route('admin.orders.index') }}" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 {{ request()->routeIs('admin.orders.*') ? 'bg-zinc-100 text-zinc-900 font-semibold' : '' }}">
+                    Pesanan
+                </a>
+                
+                <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">
+                    Laporan
+                </a>
             </nav>
         </aside>
 
