@@ -10,11 +10,35 @@ class OrderController extends Controller
     // 1. Menampilkan Halaman Daftar Pesanan
     public function index(Request $request)
     {
-        // Contoh mengambil data dari tabel PESANAN (sesuai migrasi SQL Anda)
-        // Anda bisa menambahkan fitur pencarian/search di sini
-        $orders = DB::table('PESANAN')->get(); 
+        $search = $request->input('search');
 
-        return view('orders.index', compact('orders'));
+        $orders = DB::table('PESANAN')
+            ->leftJoin('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
+            ->select('PESANAN.*', 'STATUS_PESANAN.NAMA_STATUS')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereRaw('CAST(PESANAN.ID_PESANAN AS VARCHAR(20)) LIKE ?', ["%{$search}%"])
+                        ->orWhere('PESANAN.EMAIL', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('PESANAN.TANGGAL_PESANAN')
+            ->get();
+
+        $totalOrders = DB::table('PESANAN')->count();
+        $pendingOrders = DB::table('PESANAN')
+            ->whereIn('ID_STATUS', [1, 2])
+            ->count();
+        $totalRevenue = DB::table('PESANAN')
+            ->where('STATUS_PEMBAYARAN', 1)
+            ->sum('TOTAL_HARGA');
+
+        return view('orders.index', compact(
+            'orders',
+            'search',
+            'totalOrders',
+            'pendingOrders',
+            'totalRevenue'
+        ));
     }
 
     // 2. Menampilkan Halaman Detail Pesanan
