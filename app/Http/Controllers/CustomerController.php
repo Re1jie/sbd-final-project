@@ -31,7 +31,7 @@ class CustomerController extends Controller
     $purchaseHistory = DB::table('PESANAN')
         ->join('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
         ->where('PESANAN.EMAIL', $email)
-        ->orderBy('PESANAN.TANGGAL_PESANAN', 'desc')
+        ->orderBy('PESANAN.TANGGAL_PESANAN')
         ->get(); // Ini akan membawa semua kolom dari kedua tabel, termasuk NAMA_STATUS
 
     return view('customers.show', compact('customer', 'purchaseHistory'));
