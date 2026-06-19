@@ -19,20 +19,26 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-200 bg-white text-zinc-700">
-                    {{-- @foreach($pelanggan as $customer) --}}
+                    {{-- Looping data menggunakan variabel dari Controller --}}
+                    @foreach($customers as $item)
                     <tr>
-                        <td class="whitespace-nowrap px-6 py-4 font-semibold text-zinc-950">Budi Santoso</td>
-                        <td class="whitespace-nowrap px-6 py-4">budi@email.com</td>
-                        <td class="px-6 py-4 max-w-xs truncate">Jl. Kenangan No. 12, Kota Surabaya</td>
+                        <td class="whitespace-nowrap px-6 py-4 font-semibold text-zinc-950">{{ $item->NAMA }}</td>
+                        <td class="whitespace-nowrap px-6 py-4">{{ $item->EMAIL }}</td>
+                        <td class="px-6 py-4 max-w-xs truncate">{{ $item->ALAMAT }}</td>
                         <td class="whitespace-nowrap px-6 py-4">
-                            <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700 border border-purple-200">Gold</span>
+                            {{-- Mengambil nama tingkatan dari hasil leftJoin tabel LOYALITAS --}}
+                            <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700 border border-purple-200">
+                                {{ $item->NAMA_LOYALITAS ?? 'Regular' }}
+                            </span>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-right">
-                            <a href="{{ route('admin.customers.show', $customer->EMAIL) }}" class="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50"> Riwayat & Detail
+                            {{-- Tombol aksi dinamis yang membawa Email unik pelanggan --}}
+                            <a href="{{ route('admin.customers.show', $item->EMAIL) }}" class="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-xs font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-zinc-300 hover:bg-zinc-50">
+                                Riwayat & Detail
                             </a>
                         </td>
                     </tr>
-                    {{-- @endforeach --}}
+                    @endforeach
                 </tbody>
             </table>
         </div>

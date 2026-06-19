@@ -3,25 +3,30 @@
 @section('content')
 <div class="space-y-6">
     <div>
+        {{-- Tombol kembali yang mengarah ke daftar index pelanggan --}}
         <a href="{{ route('admin.customers.index') }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">&larr; Kembali ke Daftar Pelanggan</a>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm space-y-4 h-fit">
             <div class="flex items-center gap-3 border-b border-zinc-100 pb-3">
-                <div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-700 uppercase">BS</div>
+                <div class="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-700 uppercase">
+                    {{ strtoupper(substr($customer->NAMA, 0, 2)) }}
+                </div>
                 <div>
-                    <h3 class="text-base font-semibold text-zinc-950">Budi Santoso</h3>
-                    <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 border border-purple-200">Tier: Gold</span>
+                    <h3 class="text-base font-semibold text-zinc-950">{{ $customer->NAMA }}</h3>
+                    <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 border border-purple-200">
+                        Tier: {{ $customer->NAMA_LOYALITAS ?? 'Regular' }}
+                    </span>
                 </div>
             </div>
             <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Email Utama</p>
-                <p class="text-sm font-medium text-zinc-950 mt-0.5">budi@email.com</p>
+                <p class="text-sm font-medium text-zinc-950 mt-0.5">{{ $customer->EMAIL }}</p>
             </div>
             <div>
                 <p class="text-xs font-semibold uppercase tracking-wider text-zinc-400">Alamat Utama</p>
-                <p class="text-sm text-zinc-600 mt-0.5 leading-relaxed">Jl. Kenangan No. 12, Kota Surabaya, Jawa Timur</p>
+                <p class="text-sm text-zinc-600 mt-0.5 leading-relaxed">{{ $customer->ALAMAT }}</p>
             </div>
         </div>
 
@@ -41,18 +46,28 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-200 bg-white text-zinc-700">
+                        @forelse($purchaseHistory as $history)
                         <tr>
-                            <td class="whitespace-nowrap px-6 py-4 font-semibold text-zinc-950">#100234</td>
-                            <td class="whitespace-nowrap px-6 py-4">19 Juni 2026</td>
-                            <td class="whitespace-nowrap px-6 py-4">Rp 450.000</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-semibold text-zinc-950">#{{ $history->ID_PESANAN }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ date('d M Y', strtotime($history->TANGGAL_PESANAN)) }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">Rp {{ number_format($history->TOTAL_HARGA, 0, ',', '.') }}</td>
                             <td class="whitespace-nowrap px-6 py-4">
-                                <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 border border-emerald-200">Selesai</span>
+                                <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 border border-emerald-200">
+                                    {{-- DIUBAH KE NAMA_STATUS SESUAI TABEL MASTER DI PDM --}}
+                                    {{ ucfirst($history->NAMA_STATUS ?? 'Diproses') }}
+                                </span>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-right">
-                                <a href="{{ route('admin.orders.show', $history->ID_PESANAN) }}" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700"> Lihat Nota
+                                <a href="{{ route('admin.orders.show', $history->ID_PESANAN) }}" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">
+                                    Lihat Nota
                                 </a>
                             </td>
                         </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-zinc-400">Belum ada riwayat transaksi.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
