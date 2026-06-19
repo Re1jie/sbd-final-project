@@ -10,9 +10,7 @@ class CategoryController extends Controller
     // 1. Menampilkan Daftar Kategori
     public function index()
     {
-        // Mengambil semua data dari tabel KATEGORI menggunakan Raw SQL
         $categories = DB::select("SELECT * FROM KATEGORI ORDER BY ID_KATEGORI DESC");
-        
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -22,24 +20,32 @@ class CategoryController extends Controller
         return view('admin.categories.create');
     }
 
-    // 3. Menyimpan Kategori Baru ke Database
+    // 3. Menyimpan Kategori Baru ke Database dengan Input ID Manual
     public function store(Request $request)
     {
         // Validasi input form
         $request->validate([
+            'ID_KATEGORI'   => 'required|numeric|min:1',
             'NAMA_KATEGORI' => 'required|string|max:100',
-            'DESKRIPSI'     => 'nullable|string',
         ], [
+            'ID_KATEGORI.required'   => 'ID Kategori wajib diisi.',
+            'ID_KATEGORI.numeric'    => 'ID Kategori harus berupa angka.',
             'NAMA_KATEGORI.required' => 'Nama kategori wajib diisi.',
         ]);
 
-        // Insert ke database SQL Server menggunakan Raw SQL
+        // Cek keunikan ID_KATEGORI secara manual karena menggunakan Non-ORM Raw SQL
+        $exists = DB::select("SELECT 1 FROM KATEGORI WHERE ID_KATEGORI = ?", [$request->ID_KATEGORI]);
+        if (!empty($exists)) {
+            return redirect()->back()->withInput()->withErrors(['ID_KATEGORI' => 'ID Kategori sudah terdaftar! Gunakan ID lain.']);
+        }
+
+        // Masukkan data beserta ID_KATEGORI yang diinput user
         DB::insert("
-            INSERT INTO KATEGORI (NAMA_KATEGORI, DESKRIPSI) 
+            INSERT INTO KATEGORI (ID_KATEGORI, NAMA_KATEGORI) 
             VALUES (?, ?)
         ", [
+            $request->ID_KATEGORI,
             $request->NAMA_KATEGORI,
-            $request->DESKRIPSI
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan.');
@@ -48,7 +54,6 @@ class CategoryController extends Controller
     // 4. Menampilkan Form Edit Kategori
     public function edit($id)
     {
-        // Mencari data kategori berdasarkan ID_KATEGORI
         $category = DB::select("SELECT * FROM KATEGORI WHERE ID_KATEGORI = ?", [$id]);
         
         if (empty($category)) {
@@ -63,19 +68,16 @@ class CategoryController extends Controller
     {
         $request->validate([
             'NAMA_KATEGORI' => 'required|string|max:100',
-            'DESKRIPSI'     => 'nullable|string',
         ], [
             'NAMA_KATEGORI.required' => 'Nama kategori wajib diisi.',
         ]);
 
-        // Update data menggunakan Raw SQL
         DB::update("
             UPDATE KATEGORI 
-            SET NAMA_KATEGORI = ?, DESKRIPSI = ? 
+            SET NAMA_KATEGORI = ? 
             WHERE ID_KATEGORI = ?
         ", [
             $request->NAMA_KATEGORI,
-            $request->DESKRIPSI,
             $id
         ]);
 
@@ -86,11 +88,9 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-            // Hapus data berdasarkan ID_KATEGORI
             DB::delete("DELETE FROM KATEGORI WHERE ID_KATEGORI = ?", [$id]);
             return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');
         } catch (\Exception $e) {
-            // Jaga-jaga jika kategori gagal dihapus karena masih terikat dengan data PRODUK (Foreign Key Constraint)
             return redirect()->route('admin.categories.index')->with('error', 'Kategori tidak bisa dihapus karena masih digunakan oleh produk.');
         }
     }
