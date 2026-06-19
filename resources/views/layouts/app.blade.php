@@ -15,9 +15,21 @@
             </a>
 
             <nav class="mt-8 space-y-1">
-                <a href="{{ route('dashboard') }}" class="flex items-center rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">Dashboard</a>
-                <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Produk</a>
-                <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Kategori</a>
+            <a href="{{ route('dashboard') }}" 
+                class="flex items-center rounded-md px-3 py-2 text-sm font-semibold {{ request()->routeIs('dashboard') ? 'bg-emerald-50 text-emerald-800' : 'text-zinc-600 hover:bg-zinc-100' }}">
+                    Dashboard
+                </a>
+
+                <a href="{{ route('admin.products.index') }}" 
+                class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->routeIs('admin.products.*') ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-zinc-600 hover:bg-zinc-100' }}">
+                    Produk
+                </a>
+
+                <a href="{{ route('admin.categories.index') }}" 
+                class="flex items-center rounded-md px-3 py-2 text-sm font-medium {{ request()->routeIs('admin.categories.*') ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-zinc-600 hover:bg-zinc-100' }}">
+                    Kategori
+                </a>
+
                 <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Pelanggan</a>
                 <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Pesanan</a>
                 <a href="#" class="flex items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100">Laporan</a>
