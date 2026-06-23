@@ -64,7 +64,7 @@ class AuthController extends Controller
             'PASSWORD' => $validated['PASSWORD'], // Simpan teks asli tanpa Bcrypt
             'ROLE' => 'PELANGGAN', 
             'ALAMAT' => $validated['ALAMAT'],
-            'ID_LOYALITAS' => null,
+            'ID_LOYALITAS' => '1',
         ]);
 
         return redirect()->route('login')->with('success', 'Pendaftaran berhasil! Silakan masukkan Email dan Password Anda untuk masuk.');

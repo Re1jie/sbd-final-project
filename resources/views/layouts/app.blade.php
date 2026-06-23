@@ -127,24 +127,28 @@
                     
                     <div class="flex items-center gap-2 sm:gap-3">
                         
-                        <a href="{{ route('catalog.index') }}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all">
-                            <i class="fa-solid fa-border-all text-emerald-600 text-base"></i>
-                            <span class="hidden sm:inline">Katalog</span>
-                        </a>
+                        @if(!request()->routeIs('login', 'register') && (!Auth::check() || !Auth::user()->isAdmin()))
 
-                        <a href="{{ route('cart.index') }}" class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-2xs">
-                            <i class="fa-solid fa-cart-shopping"></i>
-                            <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-xs">
-                                <i class="fa-solid fa-bag-shopping text-[8px]"></i>
-                            </span>
-                        </a>
+                            <a href="{{ route('catalog.index') }}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all">
+                                <i class="fa-solid fa-border-all text-emerald-600 text-base"></i>
+                                <span class="hidden sm:inline">Katalog</span>
+                            </a>
+
+                            <a href="{{ route('cart.index') }}" class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all shadow-2xs">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white shadow-xs">
+                                    <i class="fa-solid fa-bag-shopping text-[8px]"></i>
+                                </span>
+                            </a>
+
+                        @endif
 
                         {{-- JIKA BELUM LOGIN --}}
                         @guest
                             <div class="flex items-center gap-2 pl-2 sm:pl-3 border-l border-slate-200">
                                 <a href="{{ route('login') }}" class="rounded-xl px-3.5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all">
                                     Masuk
-                               退</a>
+                               </a>
                                 <a href="{{ route('register') }}" class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-sm font-bold text-white shadow-md shadow-emerald-500/20 hover:from-emerald-500 hover:to-teal-500 transition-all">
                                     <i class="fa-solid fa-user-plus text-xs mr-0.5"></i> Daftar
                                 </a>
