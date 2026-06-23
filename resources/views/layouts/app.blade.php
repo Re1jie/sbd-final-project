@@ -32,7 +32,7 @@
              SIDEBAR KHUSUS ADMIN (Hanya muncul jika rolenya 'admin')
         ================================================================ --}}
         @if(Auth::check() && Auth::user()->isAdmin())
-        <aside class="hidden w-64 shrink-0 flex-col justify-between border-r border-slate-800 bg-slate-900 px-5 py-6 text-slate-300 shadow-xl lg:flex z-30">
+        <aside class="hidden w-64 shrink-0 flex-col justify-between border-r border-slate-800 bg-slate-900 px-5 py-6 text-slate-300 shadow-xl lg:flex z-30 sticky top-0 h-screen overflow-y-auto">
             <div>
                 <a href="{{ route('dashboard') }}" class="group flex items-center gap-3 px-2 mb-8 transition-all">
                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 transition-transform group-hover:rotate-6">
