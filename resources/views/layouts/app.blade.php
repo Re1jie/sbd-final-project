@@ -160,6 +160,15 @@
                             <div class="flex items-center gap-2.5 pl-2 sm:pl-3 border-l border-slate-200">
                                 
                                 @if(Auth::user()->isClient())
+                                    <a href="{{ route('orders.index') }}" class="group flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white p-1.5 pr-3 shadow-2xs hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
+                                        <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-xs font-bold text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                            <i class="fa-solid fa-clipboard-list text-sm"></i>
+                                        </div>
+                                        <div class="hidden text-left leading-tight sm:block">
+                                            <div class="text-[10px] font-semibold text-emerald-600">Pesanan Saya</div>
+                                        </div>
+                                    </a>
+
                                     <a href="{{ route('profile.index') }}" class="group flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-white p-1.5 pr-3 shadow-2xs hover:border-emerald-300 hover:bg-emerald-50/50 transition-all">
                                         <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-xs font-bold text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-all">
                                             {{ substr(Auth::user()->NAMA, 0, 1) }}

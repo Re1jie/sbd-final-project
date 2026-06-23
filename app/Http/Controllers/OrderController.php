@@ -11,11 +11,18 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $isClient = \Illuminate\Support\Facades\Auth::user()->isClient();
+        $userEmail = \Illuminate\Support\Facades\Auth::user()->EMAIL;
 
-        $orders = DB::table('PESANAN')
+        $ordersQuery = DB::table('PESANAN')
             ->leftJoin('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
-            ->select('PESANAN.*', 'STATUS_PESANAN.NAMA_STATUS')
-            ->when($search, function ($query, $search) {
+            ->select('PESANAN.*', 'STATUS_PESANAN.NAMA_STATUS');
+
+        if ($isClient) {
+            $ordersQuery->where('PESANAN.EMAIL', $userEmail);
+        }
+
+        $orders = $ordersQuery->when($search, function ($query, $search) {
                 $query->where(function ($query) use ($search) {
                     $query->whereRaw('CAST(PESANAN.ID_PESANAN AS VARCHAR(20)) LIKE ?', ["%{$search}%"])
                         ->orWhere('PESANAN.EMAIL', 'like', "%{$search}%");
@@ -24,20 +31,21 @@ class OrderController extends Controller
             ->orderByDesc('PESANAN.TANGGAL_PESANAN')
             ->get();
 
-        $totalOrders = DB::table('PESANAN')->count();
-        $pendingOrders = DB::table('PESANAN')
-            ->whereIn('ID_STATUS', [1, 2])
-            ->count();
-        $totalRevenue = DB::table('PESANAN')
-            ->where('STATUS_PEMBAYARAN', 1)
-            ->sum('TOTAL_HARGA');
+        $statsQuery = DB::table('PESANAN');
+        if ($isClient) {
+            $statsQuery->where('EMAIL', $userEmail);
+        }
+        $totalOrders = (clone $statsQuery)->count();
+        $pendingOrders = (clone $statsQuery)->whereIn('ID_STATUS', [1, 2])->count();
+        $totalRevenue = (clone $statsQuery)->where('STATUS_PEMBAYARAN', 1)->sum('TOTAL_HARGA');
 
         return view('orders.index', compact(
             'orders',
             'search',
             'totalOrders',
             'pendingOrders',
-            'totalRevenue'
+            'totalRevenue',
+            'isClient'
         ));
     }
 
@@ -45,12 +53,27 @@ class OrderController extends Controller
     public function show($id)
     {
         // Mengambil detail satu pesanan berdasarkan ID_PESANAN
-        $order = DB::table('PESANAN')->where('ID_PESANAN', $id)->first();
+        $orderQuery = DB::table('PESANAN')
+            ->leftJoin('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
+            ->leftJoin('PELANGGAN', 'PESANAN.EMAIL', '=', 'PELANGGAN.EMAIL')
+            ->select('PESANAN.*', 'STATUS_PESANAN.NAMA_STATUS', 'PELANGGAN.NAMA as NAMA_PELANGGAN', 'PELANGGAN.ALAMAT as ALAMAT_PELANGGAN')
+            ->where('PESANAN.ID_PESANAN', $id);
 
-        // Mengambil produk-produk yang ada di dalam pesanan tersebut (tabel relasi/pivot jika ada)
-        $orderItems = DB::table('DETAIL_PESANAN')
-            ->join('PRODUK', 'DETAIL_PESANAN.ID_PRODUK', '=', 'PRODUK.ID_PRODUK')
-            ->where('DETAIL_PESANAN.ID_PESANAN', $id)
+        if (\Illuminate\Support\Facades\Auth::user()->isClient()) {
+            $orderQuery->where('PESANAN.EMAIL', \Illuminate\Support\Facades\Auth::user()->EMAIL);
+        }
+
+        $order = $orderQuery->first();
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        // Mengambil produk-produk yang ada di dalam pesanan tersebut
+        $orderItems = DB::table('ORDERED_PRODUCT')
+            ->join('PRODUK', 'ORDERED_PRODUCT.KODE_PRODUK', '=', 'PRODUK.KODE_PRODUK')
+            ->where('ORDERED_PRODUCT.ID_PESANAN', $id)
+            ->select('ORDERED_PRODUCT.*', 'PRODUK.NAMA_PRODUK', 'PRODUK.HARGA')
             ->get();
 
         return view('orders.show', compact('order', 'orderItems'));
@@ -60,14 +83,36 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:diproses,dikirim,selesai,dibatalkan'
+            'status' => 'required|in:1,2,3,4,5'
         ]);
 
-        // Update STATUS_PESANAN di database
+        // Update ID_STATUS di database
         DB::table('PESANAN')
             ->where('ID_PESANAN', $id)
-            ->update(['STATUS_PESANAN' => $request->status]);
+            ->update(['ID_STATUS' => $request->status]);
 
         return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui!');
+    }
+
+    // 4. Fitur Selesaikan Pesanan (Client)
+    public function completeOrder($id)
+    {
+        $orderQuery = DB::table('PESANAN')
+            ->where('ID_PESANAN', $id)
+            ->where('EMAIL', \Illuminate\Support\Facades\Auth::user()->EMAIL);
+
+        $order = $orderQuery->first();
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        if ($order->ID_STATUS != 3) {
+            return redirect()->back()->with('error', 'Pesanan belum bisa diselesaikan.');
+        }
+
+        $orderQuery->update(['ID_STATUS' => 4]);
+
+        return redirect()->back()->with('success', 'Terima kasih! Pesanan telah selesai.');
     }
 }

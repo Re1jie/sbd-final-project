@@ -16,16 +16,28 @@
                         <th class="px-6 py-3">Tanggal</th>
                         <th class="px-6 py-3">Total Harga</th>
                         <th class="px-6 py-3">Status</th>
+                        <th class="px-6 py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-200 bg-white text-zinc-700">
                     @foreach($orders as $order)
                     <tr class="hover:bg-zinc-50 transition">
-                        {{-- ID Pesanan dijadikan link interaktif utama --}}
                         <td class="whitespace-nowrap px-6 py-4 font-semibold">
-                            <a href="{{ route('admin.orders.show', $order->ID_PESANAN) }}" class="text-emerald-600 hover:text-emerald-700 hover:underline">
-                                #{{ $order->ID_PESANAN }}
-                            </a>
+                            @if(isset($isClient) && $isClient)
+                                @if($order->ID_STATUS == 1)
+                                    <a href="{{ route('payment.show', $order->ID_PESANAN) }}" class="text-amber-600 hover:text-amber-700 hover:underline" title="Lanjut Pembayaran">
+                                        #{{ $order->ID_PESANAN }}
+                                    </a>
+                                @else
+                                    <a href="{{ route('orders.show', $order->ID_PESANAN) }}" class="text-emerald-600 hover:text-emerald-700 hover:underline">
+                                        #{{ $order->ID_PESANAN }}
+                                    </a>
+                                @endif
+                            @else
+                                <a href="{{ route('admin.orders.show', $order->ID_PESANAN) }}" class="text-emerald-600 hover:text-emerald-700 hover:underline">
+                                    #{{ $order->ID_PESANAN }}
+                                </a>
+                            @endif
                         </td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $order->EMAIL }}</td>
                         <td class="whitespace-nowrap px-6 py-4">{{ date('d M Y', strtotime($order->TANGGAL_PESANAN)) }}</td>
@@ -34,6 +46,58 @@
                             <span class="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 border border-amber-200">
                                 {{ ucfirst($order->NAMA_STATUS ?? 'Diproses') }}
                             </span>
+                        </td>
+                        <td class="whitespace-nowrap px-6 py-4 text-center">
+                            @if(isset($isClient) && $isClient)
+                                @if($order->ID_STATUS == 1)
+                                    <a href="{{ route('payment.show', $order->ID_PESANAN) }}" class="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-amber-600 transition-all">
+                                        <i class="fa-solid fa-credit-card"></i> Bayar
+                                    </a>
+                                @elseif($order->ID_STATUS == 3)
+                                    <form action="{{ route('orders.complete', $order->ID_PESANAN) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin pesanan telah diterima dengan baik dan ingin menyelesaikannya?')">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-500 transition-all">
+                                            <i class="fa-solid fa-check-double"></i> Selesai
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-zinc-400 text-xs">-</span>
+                                @endif
+                            @else
+                                {{-- Sisi Admin --}}
+                                @if($order->ID_STATUS == 2)
+                                    <div class="flex items-center justify-center gap-2">
+                                        <form action="{{ route('admin.orders.updateStatus', $order->ID_PESANAN) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="3">
+                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-blue-500 transition-all" title="Ubah status ke Dikirim">
+                                                <i class="fa-solid fa-truck-fast"></i> Dikirim
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('admin.orders.updateStatus', $order->ID_PESANAN) }}" method="POST" class="inline" onsubmit="return confirm('Selesaikan pesanan ini langsung?')">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="4">
+                                            <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-500 transition-all" title="Ubah status ke Selesai">
+                                                <i class="fa-solid fa-check-double"></i> Selesai
+                                            </button>
+                                        </form>
+                                    </div>
+                                @elseif($order->ID_STATUS == 3)
+                                    <form action="{{ route('admin.orders.updateStatus', $order->ID_PESANAN) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="status" value="4">
+                                        <button type="submit" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-500 transition-all">
+                                            <i class="fa-solid fa-check-double"></i> Selesai
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-zinc-400 text-xs">-</span>
+                                @endif
+                            @endif
                         </td>
                     </tr>
                     @endforeach
