@@ -25,9 +25,53 @@
             @endforeach
         </div>
         
-        <div class="bg-zinc-50 px-6 py-4 flex justify-between items-center border-t border-zinc-200">
-            <p class="text-zinc-600 font-semibold uppercase text-sm">Total Belanja</p>
-            <p class="text-2xl font-black text-emerald-600">Rp{{ number_format($totalBelanja, 0, ',', '.') }}</p>
+        <div class="bg-zinc-50 px-6 py-4 border-t border-zinc-200 space-y-2">
+            {{-- Tier benefit badge --}}
+            @if($tierName !== 'Bronze')
+                <div class="flex items-center gap-2 mb-1 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200/60 w-fit">
+                    <i class="fa-solid fa-award text-emerald-600 text-xs"></i>
+                    <span class="text-[11px] font-extrabold text-emerald-700">
+                        Benefit Tier {{ $tierName }}
+                        @if($discountPercent > 0) — Diskon {{ $discountPercent }}% + Free Ongkir
+                        @else — Free Ongkir
+                        @endif
+                    </span>
+                </div>
+            @endif
+
+            <div class="flex justify-between items-center">
+                <p class="text-zinc-500 font-semibold text-sm">Subtotal</p>
+                <p class="font-bold text-zinc-700">Rp{{ number_format($totalBelanja, 0, ',', '.') }}</p>
+            </div>
+
+            {{-- Discount row (Gold & Platinum only) --}}
+            @if($discountAmount > 0)
+                <div class="flex justify-between items-center">
+                    <p class="text-emerald-600 font-semibold text-sm">
+                        <i class="fa-solid fa-tag text-xs mr-1"></i> Diskon {{ $discountPercent }}%
+                    </p>
+                    <p class="font-bold text-emerald-600">-Rp{{ number_format($discountAmount, 0, ',', '.') }}</p>
+                </div>
+            @endif
+
+            <div class="flex justify-between items-center">
+                <p class="text-zinc-500 font-semibold text-sm">
+                    <i class="fa-solid fa-truck text-xs mr-1"></i> Ongkir
+                </p>
+                @if($ongkir === 0)
+                    <div class="flex items-center gap-2">
+                        <p class="text-zinc-400 line-through text-sm">Rp5.000</p>
+                        <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">GRATIS</span>
+                    </div>
+                @else
+                    <p class="font-bold text-zinc-700">Rp{{ number_format($ongkir, 0, ',', '.') }}</p>
+                @endif
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-zinc-200">
+                <p class="text-zinc-800 font-extrabold uppercase text-sm">Grand Total</p>
+                <p class="text-2xl font-black text-emerald-600">Rp{{ number_format($grandTotal, 0, ',', '.') }}</p>
+            </div>
         </div>
     </div>
 
