@@ -13,6 +13,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PaymentController;
 
 // --- TAMBAHAN IMPORT ANGGOTA 3 ---
 use App\Http\Controllers\AuthController;
@@ -51,15 +52,27 @@ Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('car
 
 // --- PROTEKSI AKSES CLIENT (Hanya boleh diakses Client yang sudah login) ---
 Route::middleware(['auth', 'client'])->group(function () {
+    
     // Alur Checkout Pelanggan (Anggota 4)
+    // Menampilkan halaman review checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    // Memproses "Apply/Konfirmasi" pesanan ke database
+    Route::post('/checkout/process', [CheckoutController::class, 'store'])->name('checkout.store');
+
+    // Halaman Pembayaran (Anggota 4)
+    Route::get('/payment/{id}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::put('/payment/{id}/pay', [PaymentController::class, 'pay'])->name('payment.pay');
+    Route::put('/payment/{id}/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
 
     // Halaman Profil & Edit Alamat (Anggota 3)
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    
+    // Halaman Pesanan Saya Client (Asumsi menggunakan method yang sama tapi di sisi client)
+    Route::get('/my-orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/my-orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::put('/my-orders/{id}/complete', [OrderController::class, 'completeOrder'])->name('orders.complete');
 });
 
 

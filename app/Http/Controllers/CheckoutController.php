@@ -4,75 +4,77 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
     public function index()
     {
         $cart = session()->get('cart', []);
+
         if (empty($cart)) {
-            return redirect()->route('catalog.index')->with('error', 'Keranjang Anda kosong!');
+            return redirect()->route('cart.index')->with('error', 'Keranjang belanja Anda masih kosong.');
         }
 
-        $subtotal = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
-        $ongkir = 15000; // Contoh Ongkir Flat statis sesuai permintaan modul
-        $total = $subtotal + $ongkir;
+        $totalBelanja = 0;
+        foreach ($cart as $item) {
+            $totalBelanja += $item['price'] * $item['quantity'];
+        }
 
-        return view('checkout.index', compact('cart', 'subtotal', 'ongkir', 'total'));
+        return view('checkout.index', compact('cart', 'totalBelanja'));
     }
 
-    public function process(Request $request)
+   public function store(Request $request)
     {
         $cart = session()->get('cart', []);
-        if (empty($cart)) return redirect()->route('catalog.index');
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong!');
+        }
 
-        // 1. Validasi Stok Final sebelum menulis ke database
-        foreach ($cart as $item) {
-            $dbProduct = DB::select("SELECT STOK FROM PRODUK WHERE KODE_PRODUK = ?", [$item['id']]);
-            if (empty($dbProduct) || $dbProduct[0]->STOK < $item['quantity']) {
-                return redirect()->route('cart.index')->with('error', 'Maaf, stok ' . $item['name'] . ' mendadak tidak mencukupi. Silakan sesuaikan kembali.');
+        DB::beginTransaction();
+
+        try {
+            $emailCustomer = Auth::user()->EMAIL;
+            
+            $totalHarga = 0;
+            foreach ($cart as $item) {
+                $totalHarga += $item['price'] * $item['quantity'];
             }
+
+            // 1. GENERATE ID_PESANAN SECARA MANUAL (kolom bukan IDENTITY/auto-increment)
+            $result = DB::select("SELECT ISNULL(MAX(ID_PESANAN), 0) + 1 AS next_id FROM PESANAN");
+            $idPesanan = $result[0]->next_id;
+
+            // 2. INSERT KE TABEL PESANAN
+            DB::insert("INSERT INTO PESANAN (ID_PESANAN, EMAIL, TOTAL_HARGA, ID_STATUS, TANGGAL_PESANAN) VALUES (?, ?, ?, ?, GETDATE())", [
+                $idPesanan,
+                $emailCustomer,
+                $totalHarga,
+                1 // ID_STATUS untuk 'Menunggu Pembayaran'
+            ]);
+
+            // 3. INSERT KE TABEL ORDERED_PRODUCT
+            foreach ($cart as $id => $item) {
+                DB::insert("INSERT INTO ORDERED_PRODUCT (ID_PESANAN, KODE_PRODUK) VALUES (?, ?)", [
+                    $idPesanan,
+                    $item['id']
+                ]);
+
+                // Update stok produk
+                DB::update("UPDATE PRODUK SET STOK = STOK - ? WHERE KODE_PRODUK = ?", [
+                    $item['quantity'],
+                    $item['id']
+                ]);
+            }
+
+            DB::commit();
+            session()->forget('cart');
+
+            return redirect()->route('payment.show', $idPesanan)->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('checkout.index')->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
-
-        // Ambil ID Pelanggan (misal default 1 jika login modul Anggota 3 belum terpasang penuh)
-        $idPelanggan = auth()->id() ?? 1; 
-        $ongkir = 15000;
-        $subtotal = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
-        $total = $subtotal + $ongkir;
-
-        // Ambil ID Order baru (Manual Increment/Check Max ID sesuai konvensi Non-ORM proyek Anda)
-        $maxOrder = DB::select("SELECT MAX(ID_PESANAN) as max_id FROM PESANAN");
-        $idPesananBaru = (!empty($maxOrder) && $maxOrder[0]->max_id !== null) ? ($maxOrder[0]->max_id + 1) : 1;
-
-        // 2. Simpan ke tabel PESANAN (Master Order)
-        DB::insert("
-            INSERT INTO PESANAN (ID_PESANAN, ID_PELANGGAN, TANGGAL_PESANAN, TOTAL_HARGA, BIAYA_ONGKIR, STATUS_PESANAN) 
-            VALUES (?, ?, GETDATE(), ?, ?, 'Belum Bayar')
-        ", [$idPesananBaru, $idPelanggan, $total, $ongkir]);
-
-        // 3. Simpan ke tabel ITEM_PESANAN & Potong Stok Produk langsung
-        foreach ($cart as $item) {
-            DB::insert("
-                INSERT INTO ITEM_PESANAN (ID_PESANAN, KODE_PRODUK, JUMLAH, HARGA_SATUAN) 
-                VALUES (?, ?, ?, ?)
-            ", [$idPesananBaru, $item['id'], $item['quantity'], $item['price']]);
-
-            // Potong stok produk di database
-            DB::update("
-                UPDATE PRODUK 
-                SET STOK = STOK - ? 
-                WHERE KODE_PRODUK = ?
-            ", [$item['quantity'], $item['id']]);
-        }
-
-        // 4. Kosongkan keranjang belanja setelah checkout berhasil
-        session()->forget('cart');
-
-        return redirect()->route('checkout.success')->with('order_id', $idPesananBaru);
-    }
-
-    public function success()
-    {
-        return view('checkout.success');
     }
 }

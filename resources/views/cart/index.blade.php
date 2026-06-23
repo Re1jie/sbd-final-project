@@ -47,9 +47,9 @@
                     <p class="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Total Sementara</p>
                     <p class="text-2xl font-black text-zinc-950">Rp{{ number_format($totalSementara, 0, ',', '.') }}</p>
                 </div>
-                <a href="{{ route('checkout.index') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded shadow-sm text-sm transition">
-                    Lanjut ke Checkout &rarr;
-                </a>
+                    <a href="{{ route('checkout.index') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded shadow-sm text-sm transition">
+                        Lanjut ke Checkout &rarr;
+                    </a>
             </div>
         </div>
     @else
