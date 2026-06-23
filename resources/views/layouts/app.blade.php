@@ -40,7 +40,7 @@
                     </div>
                     <div>
                         <span class="text-[10px] font-extrabold tracking-widest text-emerald-400 uppercase">Admin Panel</span>
-                        <h1 class="text-lg font-extrabold text-white tracking-tight leading-none">SBD<span class="text-emerald-400">Store</span></h1>
+                        <h1 class="text-lg font-extrabold text-white tracking-tight leading-none">KOPDES<span class="text-emerald-400">Shop</span></h1>
                     </div>
                 </a>
 
@@ -104,7 +104,7 @@
                             </div>
                             <div class="leading-none">
                                 <span class="text-[10px] font-extrabold tracking-widest text-emerald-600 uppercase">Toko Online</span>
-                                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight leading-none">SBD<span class="text-emerald-600">Shop</span></h1>
+                                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight leading-none">KOPDES<span class="text-emerald-600">Shop</span></h1>
                             </div>
                         </a>
                         @endif
