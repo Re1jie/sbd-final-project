@@ -28,7 +28,7 @@
                         <td class="whitespace-nowrap px-6 py-4">
                             {{-- Mengambil nama tingkatan dari hasil leftJoin tabel LOYALITAS --}}
                             <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-semibold text-purple-700 border border-purple-200">
-                                {{ $item->NAMA_LOYALITAS ?? 'Regular' }}
+                                {{ $item->JENIS_TINGKATAN ?? 'Regular' }}
                             </span>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-right">

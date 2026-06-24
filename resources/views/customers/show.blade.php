@@ -16,7 +16,7 @@
                 <div>
                     <h3 class="text-base font-semibold text-zinc-950">{{ $customer->NAMA }}</h3>
                     <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-700 border border-purple-200">
-                        Tier: {{ $customer->NAMA_LOYALITAS ?? 'Regular' }}
+                        Tier: {{ $customer->JENIS_TINGKATAN ?? 'Regular' }}
                     </span>
                 </div>
             </div>
