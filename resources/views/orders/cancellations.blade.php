@@ -145,13 +145,11 @@
         }
     }
 
-    // Fungsi konfirmasi untuk Cancel Satuan (agar tidak bentrok dengan tag <form> yang membungkus table)
+    // Fungsi konfirmasi untuk Cancel Satuan
     function cancelSingleOrder(idPesanan) {
-        if(confirm('Batalkan pesanan ini karena melewati batas waktu pembayaran 24 jam?')) {
+        if(confirm('Batalkan pesanan #' + idPesanan + ' karena melewati batas waktu pembayaran 24 jam?')) {
             const form = document.getElementById('singleCancelForm');
-            // Ganti URL action form dengan route pembatalan satuan yang ada di web.php
-            // Karena route JS tidak bisa baca fungsi route() laravel secara dinamis, kita bentuk URL-nya secara manual atau bisa disesuaikan:
-            form.action = `/admin/orders/${idPesanan}/update-status`; 
+            form.action = '{{ route("admin.orders.updateStatus", ":id") }}'.replace(':id', idPesanan);
             form.submit();
         }
     }
