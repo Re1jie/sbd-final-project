@@ -28,10 +28,12 @@
             </div>
 
             <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Alamat Email</label>
-                <input type="email" name="EMAIL" value="{{ old('EMAIL', $user->EMAIL) }}" required 
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 transition-all focus:border-amber-500 focus:bg-white focus:outline-hidden shadow-2xs">
-                @error('EMAIL') <small class="font-bold text-rose-500">{{ $message }}</small> @enderror
+                <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-1.5">Alamat Email (Tidak dapat diubah)</label>
+                <input type="email" value="{{ $user->EMAIL }}" disabled readonly 
+                    class="w-full rounded-xl border border-slate-200 bg-slate-200/60 px-4 py-3 text-sm font-bold text-slate-500 cursor-not-allowed shadow-none">
+                <small class="block mt-1.5 text-xs font-medium text-slate-400">
+                    <i class="fa-solid fa-circle-info mr-1"></i> Email digunakan sebagai identitas utama akun.
+                </small>
             </div>
 
             <div>
