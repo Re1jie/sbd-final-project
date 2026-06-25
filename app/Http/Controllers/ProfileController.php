@@ -105,12 +105,13 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'NAMA' => ['required', 'string', 'max:255'],
-            // --- SESUAIKAN BARIS UNIQUE EMAIL MENJADI SEPERTI INI ---
-            'EMAIL' => ['required', 'string', 'email', 'max:255', 'unique:PELANGGAN,EMAIL,' . $user->EMAIL . ',EMAIL'],
             'ALAMAT' => ['required', 'string'],
         ]);
 
-        $user->update($validated);
+        $user->update([
+            'NAMA' => $validated['NAMA'],
+            'ALAMAT' => $validated['ALAMAT'],
+        ]);
 
         return redirect()->route('profile.index')->with('success', 'Profil berhasil diperbarui.');
     }

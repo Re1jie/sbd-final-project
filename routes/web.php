@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ReportController;
 
 // Import Controller Sisi Client / Pelanggan
 use App\Http\Controllers\CatalogController;
@@ -90,6 +91,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Group Route untuk Semua Fitur Manajemen Admin
     Route::prefix('admin')->name('admin.')->group(function () {
+
+        // MODUL LAPORAN (REPORT)
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         
         // MODUL PESANAN (Anggota 2)
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index'); 
