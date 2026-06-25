@@ -17,9 +17,11 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.products.update', $product->KODE_PRODUK) }}" method="POST" class="space-y-4">
+    <form action="{{ route('admin.products.update', $product->KODE_PRODUK) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         @csrf
-        @method('PUT') <div>
+        @method('PUT') 
+        
+        <div>
             <label class="block text-sm font-medium text-zinc-700">Kode Produk (Tidak dapat diubah)</label>
             <input type="text" disabled value="{{ $product->KODE_PRODUK }}" class="mt-2 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 outline-none cursor-not-allowed">
         </div>
@@ -50,6 +52,21 @@
                 <label for="STOK" class="block text-sm font-medium text-zinc-700">Stok Barang</label>
                 <input id="STOK" name="STOK" type="number" min="0" required value="{{ old('STOK', $product->STOK) }}" class="mt-2 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100" placeholder="0">
             </div>
+        </div>
+
+        <div>
+            <label for="GAMBAR_PRODUK" class="block text-sm font-medium text-zinc-700">Gambar Produk</label>
+            
+            @if(!empty($product->GAMBAR_PRODUK))
+                <div class="mt-2 mb-3">
+                    <p class="text-xs text-zinc-500 mb-1">Gambar saat ini:</p>
+                    <img src="{{ asset('storage/products/' . $product->GAMBAR_PRODUK) }}" alt="Preview Produk" class="h-28 w-28 object-cover rounded-md border border-zinc-200 shadow-sm">
+                </div>
+            @endif
+
+            <input id="GAMBAR_PRODUK" name="GAMBAR_PRODUK" type="file" accept="image/*"
+                   class="mt-2 w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 cursor-pointer">
+            <p class="text-xs text-zinc-400 mt-1">Format: JPG, JPEG, PNG, atau WEBP. Maksimal 2MB. Kosongkan jika tidak ingin mengubah gambar.</p>
         </div>
 
         <div class="flex justify-end gap-3 pt-4 border-t border-zinc-100 mt-6">

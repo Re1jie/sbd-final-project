@@ -8,13 +8,18 @@ use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
     // 1. Halaman Daftar Pelanggan & Pelanggan Loyal
-    public function index()
+    public function index(Request $request)
     {
         // Mengambil semua pelanggan KECUALI yang memiliki ROLE 'admin'
-        $customers = DB::table('PELANGGAN')
+        $query = DB::table('PELANGGAN')
             ->leftJoin('LOYALITAS', 'PELANGGAN.ID_LOYALITAS', '=', 'LOYALITAS.ID_LOYALITAS')
-            ->where('PELANGGAN.ROLE', '!=', 'admin')
-            ->get();
+            ->where('PELANGGAN.ROLE', '!=', 'admin');
+
+        if ($request->has('filter_loyalitas') && $request->filter_loyalitas != '') {
+            $query->where('LOYALITAS.JENIS_TINGKATAN', $request->filter_loyalitas);
+        }
+
+        $customers = $query->get();
 
         return view('customers.index', compact('customers'));
     }

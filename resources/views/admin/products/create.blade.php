@@ -5,7 +5,7 @@
     <div class="bg-white shadow-md rounded-lg p-6">
         <h2 class="text-xl font-bold text-gray-800 mb-6">Tambah Produk Baru</h2>
 
-        <form action="{{ route('admin.products.store') }}" method="POST">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
@@ -31,6 +31,12 @@
                     @endforeach
                 </select>
                 @error('ID_KATEGORI') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Gambar Produk</label>
+                <input type="file" name="GAMBAR_PRODUK" accept="image/*" class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline @error('GAMBAR_PRODUK') border-red-500 @enderror">
+                @error('GAMBAR_PRODUK') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="mb-4">
