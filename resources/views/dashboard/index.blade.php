@@ -2,25 +2,25 @@
 
 @section('content')
     <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="rounded-lg border border-zinc-200 bg-white p-5">
-            <p class="text-sm font-medium text-zinc-500">Produk</p>
-            <p class="mt-3 text-3xl font-bold text-zinc-950">{{ $totalProducts }}</p>
-            <p class="mt-2 text-sm text-zinc-500">Total data produk aktif.</p>
+        <div class="rounded-lg border border-zinc-200 bg-slate-900 p-5">
+            <p class="text-sm font-medium text-white">Produk</p>
+            <p class="mt-3 text-3xl font-bold text-white">{{ $totalProducts }}</p>
+            <p class="mt-2 text-sm text-white">Total data produk aktif.</p>
         </div>
-        <div class="rounded-lg border border-zinc-200 bg-white p-5">
-            <p class="text-sm font-medium text-zinc-500">Kategori</p>
-            <p class="mt-3 text-3xl font-bold text-zinc-950">{{ $totalCategories }}</p>
-            <p class="mt-2 text-sm text-zinc-500">Jumlah kategori barang.</p>
+        <div class="rounded-lg border border-zinc-200 bg-slate-900 p-5">
+            <p class="text-sm font-medium text-white">Kategori</p>
+            <p class="mt-3 text-3xl font-bold text-white">{{ $totalCategories }}</p>
+            <p class="mt-2 text-sm text-white">Jumlah kategori barang.</p>
         </div>
-        <div class="rounded-lg border border-zinc-200 bg-white p-5">
-            <p class="text-sm font-medium text-zinc-500">Pelanggan</p>
-            <p class="mt-3 text-3xl font-bold text-zinc-950">{{ $totalCustomers }}</p>
-            <p class="mt-2 text-sm text-zinc-500">Jumlah akun pelanggan terdaftar.</p>
+        <div class="rounded-lg border border-zinc-200 bg-slate-900 p-5">
+            <p class="text-sm font-medium text-white">Pelanggan</p>
+            <p class="mt-3 text-3xl font-bold text-white">{{ $totalCustomers }}</p>
+            <p class="mt-2 text-sm text-white">Jumlah akun pelanggan terdaftar.</p>
         </div>
-        <div class="rounded-lg border border-zinc-200 bg-white p-5">
-            <p class="text-sm font-medium text-zinc-500">Pesanan</p>
-            <p class="mt-3 text-3xl font-bold text-zinc-950">{{ $totalOrders }}</p>
-            <p class="mt-2 text-sm text-zinc-500">Total keseluruhan transaksi masuk.</p>
+        <div class="rounded-lg border border-zinc-200 bg-slate-900 p-5">
+            <p class="text-sm font-medium text-white">Pesanan</p>
+            <p class="mt-3 text-3xl font-bold text-white">{{ $totalOrders }}</p>
+            <p class="mt-2 text-sm text-white">Total keseluruhan transaksi masuk.</p>
         </div>
     </section>
 

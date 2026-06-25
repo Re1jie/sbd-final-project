@@ -97,8 +97,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
         
         // MODUL PESANAN (Anggota 2)
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index'); 
+        Route::get('/orders/cancellations', [OrderController::class, 'cancellations'])->name('orders.cancellations');
+        
+        // --- TAMBAHAN ROUTE UNTUK BULK CANCEL ---
+        Route::post('/orders/bulk-cancel', [OrderController::class, 'bulkCancel'])->name('orders.bulkCancel');
+        // ----------------------------------------
+
         Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show'); 
-        Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus'); 
+        Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
 
         // MODUL PELANGGAN (Anggota 2)
         Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index'); 
