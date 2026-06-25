@@ -11,6 +11,8 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         $transactions = null;
+        $categoryStats = null;
+        $monthlyRevenue = null;
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
         $action = $request->input('action'); // Mendeteksi tombol mana yang diklik
@@ -35,6 +37,32 @@ class ReportController extends Controller
                 ->orderBy('PESANAN.TANGGAL_PESANAN', 'ASC')
                 ->get();
 
+            // Query infografis: Kategori paling banyak dibeli (berdasarkan jumlah produk terjual)
+            $categoryStats = DB::table('ORDERED_PRODUCT')
+                ->join('PESANAN', 'ORDERED_PRODUCT.ID_PESANAN', '=', 'PESANAN.ID_PESANAN')
+                ->join('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
+                ->join('PRODUK', 'ORDERED_PRODUCT.KODE_PRODUK', '=', 'PRODUK.KODE_PRODUK')
+                ->join('KATEGORI', 'PRODUK.ID_KATEGORI', '=', 'KATEGORI.ID_KATEGORI')
+                ->whereBetween('PESANAN.TANGGAL_PESANAN', [$start, $end])
+                ->where('STATUS_PESANAN.NAMA_STATUS', '!=', 'Dibatalkan')
+                ->select('KATEGORI.NAMA_KATEGORI', DB::raw('COUNT(*) as total_terjual'))
+                ->groupBy('KATEGORI.NAMA_KATEGORI')
+                ->orderByDesc('total_terjual')
+                ->get();
+
+            // Query infografis: Penghasilan per bulan (hanya pesanan yang tidak dibatalkan)
+            $monthlyRevenue = DB::table('PESANAN')
+                ->join('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
+                ->whereBetween('PESANAN.TANGGAL_PESANAN', [$start, $end])
+                ->where('STATUS_PESANAN.NAMA_STATUS', '!=', 'Dibatalkan')
+                ->select(
+                    DB::raw("FORMAT(PESANAN.TANGGAL_PESANAN, 'yyyy-MM') as bulan"),
+                    DB::raw('SUM(PESANAN.TOTAL_HARGA) as total_pendapatan')
+                )
+                ->groupBy(DB::raw("FORMAT(PESANAN.TANGGAL_PESANAN, 'yyyy-MM')"))
+                ->orderBy('bulan', 'ASC')
+                ->get();
+
             // Jika tombol 'Download PDF' yang diklik, langsung cetak
             if ($action === 'download') {
                 $data = [
@@ -52,6 +80,9 @@ class ReportController extends Controller
         }
 
         // Jika buka halaman pertama kali / klik tombol 'Tampilkan Data'
-        return view('admin.reports.index', compact('transactions', 'start_date', 'end_date'));
+        return view('admin.reports.index', compact(
+            'transactions', 'start_date', 'end_date',
+            'categoryStats', 'monthlyRevenue'
+        ));
     }
 }
