@@ -3,9 +3,18 @@
 @section('content')
 <div class="space-y-6">
     <div class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
-        <div class="px-4 py-5 sm:px-6 border-b border-zinc-200 flex items-center justify-between">
+        <div class="px-4 py-5 sm:px-6 border-b border-zinc-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h3 class="text-base font-semibold leading-6 text-zinc-950">Pelanggan Terdaftar</h3>
-            <input type="text" placeholder="Cari nama atau email..." class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none">
+            <form method="GET" action="{{ url()->current() }}" class="flex items-center gap-2">
+                <select name="filter_loyalitas" class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none" onchange="this.form.submit()">
+                    <option value="">Semua Loyalitas</option>
+                    <option value="Bronze" {{ request('filter_loyalitas') == 'Bronze' ? 'selected' : '' }}>Bronze</option>
+                    <option value="Silver" {{ request('filter_loyalitas') == 'Silver' ? 'selected' : '' }}>Silver</option>
+                    <option value="Gold" {{ request('filter_loyalitas') == 'Gold' ? 'selected' : '' }}>Gold</option>
+                    <option value="Platinum" {{ request('filter_loyalitas') == 'Platinum' ? 'selected' : '' }}>Platinum</option>
+                </select>
+                <input type="text" placeholder="Cari nama atau email..." class="rounded-md border border-zinc-300 px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none">
+            </form>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-zinc-200 text-left text-sm">

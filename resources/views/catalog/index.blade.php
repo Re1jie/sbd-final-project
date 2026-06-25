@@ -14,6 +14,15 @@
         @foreach($products as $product)
             <div class="bg-white border border-zinc-200 rounded-lg p-5 flex flex-col justify-between shadow-sm">
                 <div>
+                    @if(!empty($product->GAMBAR_PRODUK))
+                        <div class="mb-4">
+                            <img src="{{ asset($product->GAMBAR_PRODUK) }}" alt="{{ $product->NAMA_PRODUK }}" class="w-full h-48 object-cover rounded-md border border-zinc-100">
+                        </div>
+                    @else
+                        <div class="mb-4 bg-zinc-50 w-full h-48 flex items-center justify-center rounded-md border border-zinc-100">
+                            <span class="text-zinc-400 text-sm">Tidak ada gambar</span>
+                        </div>
+                    @endif
                     <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
                         {{ $product->NAMA_KATEGORI ?? 'Umum' }}
                     </span>

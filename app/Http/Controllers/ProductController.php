@@ -37,6 +37,7 @@ class ProductController extends Controller
             'ID_KATEGORI' => 'required',
             'HARGA'       => 'required|numeric|min:0',
             'STOK'        => 'required|numeric|min:0',
+            'GAMBAR_PRODUK' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Cek duplikasi KODE_PRODUK secara manual
@@ -45,16 +46,25 @@ class ProductController extends Controller
             return redirect()->back()->withInput()->withErrors(['KODE_PRODUK' => 'Kode produk sudah terdaftar!']);
         }
 
+        $imagePath = null;
+        if ($request->hasFile('GAMBAR_PRODUK')) {
+            $image = $request->file('GAMBAR_PRODUK');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('resources/img'), $imageName);
+            $imagePath = 'resources/img/' . $imageName;
+        }
+
         // Insert menggunakan Raw SQL
         DB::insert("
-            INSERT INTO PRODUK (KODE_PRODUK, ID_KATEGORI, NAMA_PRODUK, HARGA, STOK) 
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO PRODUK (KODE_PRODUK, ID_KATEGORI, NAMA_PRODUK, HARGA, STOK, GAMBAR_PRODUK) 
+            VALUES (?, ?, ?, ?, ?, ?)
         ", [
             $request->KODE_PRODUK,
             $request->ID_KATEGORI,
             $request->NAMA_PRODUK,
             $request->HARGA,
-            $request->STOK
+            $request->STOK,
+            $imagePath
         ]);
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan.');
@@ -80,19 +90,41 @@ class ProductController extends Controller
             'ID_KATEGORI' => 'required',
             'HARGA'       => 'required|numeric|min:0',
             'STOK'        => 'required|numeric|min:0',
+            'GAMBAR_PRODUK' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        DB::update("
-            UPDATE PRODUK 
-            SET ID_KATEGORI = ?, NAMA_PRODUK = ?, HARGA = ?, STOK = ? 
-            WHERE KODE_PRODUK = ?
-        ", [
-            $request->ID_KATEGORI,
-            $request->NAMA_PRODUK,
-            $request->HARGA,
-            $request->STOK,
-            $id
-        ]);
+        if ($request->hasFile('GAMBAR_PRODUK')) {
+            $image = $request->file('GAMBAR_PRODUK');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('resources/img'), $imageName);
+            $imagePath = 'resources/img/' . $imageName;
+            
+            DB::update("
+                UPDATE PRODUK 
+                SET ID_KATEGORI = ?, NAMA_PRODUK = ?, HARGA = ?, STOK = ?, GAMBAR_PRODUK = ?
+                WHERE KODE_PRODUK = ?
+            ", [
+                $request->ID_KATEGORI,
+                $request->NAMA_PRODUK,
+                $request->HARGA,
+                $request->STOK,
+                $imagePath,
+                $id
+            ]);
+        } else {
+            DB::update("
+                UPDATE PRODUK 
+                SET ID_KATEGORI = ?, NAMA_PRODUK = ?, HARGA = ?, STOK = ? 
+                WHERE KODE_PRODUK = ?
+            ", [
+                $request->ID_KATEGORI,
+                $request->NAMA_PRODUK,
+                $request->HARGA,
+                $request->STOK,
+                $imagePath,
+                $id
+            ]);
+        }
 
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
     }
