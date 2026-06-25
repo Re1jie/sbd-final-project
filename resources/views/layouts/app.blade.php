@@ -76,6 +76,12 @@
                         <i class="fa-solid fa-cart-flatbed w-5 text-center text-base"></i>
                         <span>Pesanan</span>
                     </a>
+
+                    <a href="{{ route('admin.reports.index') }}" 
+                        class="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all {{ request()->routeIs('admin.reports.*') ? 'bg-slate-800 text-emerald-400 border border-slate-700' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <i class="fa-solid fa-file-pdf w-5 text-center text-base"></i>
+                        <span>Laporan</span>
+                    </a>
                 </nav>
             </div>
 
