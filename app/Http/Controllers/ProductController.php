@@ -121,7 +121,6 @@ class ProductController extends Controller
                 $request->NAMA_PRODUK,
                 $request->HARGA,
                 $request->STOK,
-                $imagePath,
                 $id
             ]);
         }
