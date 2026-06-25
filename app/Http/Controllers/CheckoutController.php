@@ -85,12 +85,14 @@ class CheckoutController extends Controller
             $idPesanan = $result[0]->next_id;
 
             // 2. INSERT KE TABEL PESANAN (dengan ongkir & harga setelah diskon)
-            DB::insert("INSERT INTO PESANAN (ID_PESANAN, EMAIL, TOTAL_HARGA, ONGKIR, ID_STATUS, TANGGAL_PESANAN) VALUES (?, ?, ?, ?, ?, GETDATE())", [
+            // Hapus GETDATE() dan ganti dengan parameter ?
+            DB::insert("INSERT INTO PESANAN (ID_PESANAN, EMAIL, TOTAL_HARGA, ONGKIR, ID_STATUS, TANGGAL_PESANAN) VALUES (?, ?, ?, ?, ?, ?)", [
                 $idPesanan,
                 $emailCustomer,
                 $totalHarga,
                 $ongkir,
-                1 // ID_STATUS untuk 'Menunggu Pembayaran'
+                1, // ID_STATUS untuk 'Menunggu Pembayaran'
+                now() // <-- Tambahkan waktu dari sisi Laravel di sini
             ]);
 
             // 3. INSERT KE TABEL ORDERED_PRODUCT

@@ -49,6 +49,34 @@ class OrderController extends Controller
         ));
     }
 
+    public function cancellations(Request $request)
+    {
+        // Hanya untuk admin
+        if (!\Illuminate\Support\Facades\Auth::user()->isAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $search = $request->input('search');
+
+        // Ambil pesanan dengan ID_STATUS = 1 (Menunggu Pembayaran) yang sudah > 24 jam
+        // Kita hitung selisih jam menggunakan DATEDIFF di SQL Server
+        $orders = DB::table('PESANAN')
+            ->leftJoin('STATUS_PESANAN', 'PESANAN.ID_STATUS', '=', 'STATUS_PESANAN.ID_STATUS')
+            ->select('PESANAN.*', 'STATUS_PESANAN.NAMA_STATUS')
+            ->where('PESANAN.ID_STATUS', 1)
+            ->whereRaw("DATEDIFF(HOUR, PESANAN.TANGGAL_PESANAN, GETDATE()) >= 24")
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->whereRaw('CAST(PESANAN.ID_PESANAN AS VARCHAR(20)) LIKE ?', ["%{$search}%"])
+                        ->orWhere('PESANAN.EMAIL', 'like', "%{$search}%");
+                });
+            })
+            ->orderByDesc('PESANAN.TANGGAL_PESANAN')
+            ->get();
+
+        return view('orders.cancellations', compact('orders', 'search'));
+    }
+
     // 2. Menampilkan Halaman Detail Pesanan
     public function show($id)
     {
@@ -114,5 +142,28 @@ class OrderController extends Controller
         $orderQuery->update(['ID_STATUS' => 4]);
 
         return redirect()->back()->with('success', 'Terima kasih! Pesanan telah selesai.');
+    }
+
+    // 5. Fitur Batalkan Banyak Pesanan Sekaligus (Bulk Cancel)
+    public function bulkCancel(Request $request)
+    {
+        // Pastikan hanya admin yang bisa mengakses
+        if (!\Illuminate\Support\Facades\Auth::user()->isAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'order_ids' => 'required|array',
+            'order_ids.*' => 'required'
+        ]);
+
+        // Update semua ID pesanan yang dicentang menjadi status 5 (Batal)
+        // Kita tambahkan where('ID_STATUS', 1) untuk keamanan ganda agar hanya yang 'Menunggu Pembayaran' yang dibatalkan
+        DB::table('PESANAN')
+            ->whereIn('ID_PESANAN', $request->order_ids)
+            ->where('ID_STATUS', 1)
+            ->update(['ID_STATUS' => 5]);
+
+        return redirect()->back()->with('success', count($request->order_ids) . ' pesanan berhasil dibatalkan!');
     }
 }

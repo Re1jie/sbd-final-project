@@ -2,6 +2,13 @@
 
 @section('content')
 <div class="space-y-6">
+    @if(Auth::check() && Auth::user()->isAdmin())
+    <div class="flex items-center gap-4 border-b border-zinc-200 pb-2">
+        <a href="{{ route('admin.orders.index') }}" class="px-4 py-2 text-sm font-semibold border-b-2 border-emerald-600 text-emerald-600">Semua Transaksi</a>
+        <a href="{{ route('admin.orders.cancellations') }}" class="px-4 py-2 text-sm font-semibold text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 border-b-2 border-transparent">Kelola Pembatalan</a>
+    </div>
+    @endif
+
     <div class="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
         <div class="px-4 py-5 sm:px-6 border-b border-zinc-200 flex items-center justify-between">
             <h3 class="text-base font-semibold leading-6 text-zinc-950">Semua Transaksi</h3>
@@ -13,7 +20,7 @@
                     <tr>
                         <th class="px-6 py-3">ID Pesanan</th>
                         <th class="px-6 py-3">Pelanggan (Email)</th>
-                        <th class="px-6 py-3">Tanggal</th>
+                        <th class="px-6 py-3">Tanggal dan Waktu</th>
                         <th class="px-6 py-3">Total Harga</th>
                         <th class="px-6 py-3">Status</th>
                         <th class="px-6 py-3 text-center">Aksi</th>
@@ -40,7 +47,7 @@
                             @endif
                         </td>
                         <td class="whitespace-nowrap px-6 py-4">{{ $order->EMAIL }}</td>
-                        <td class="whitespace-nowrap px-6 py-4">{{ date('d M Y', strtotime($order->TANGGAL_PESANAN)) }}</td>
+                        <td class="whitespace-nowrap px-6 py-4">{{ date('d M Y, H:i', strtotime($order->TANGGAL_PESANAN)) }}</td>
                         <td class="whitespace-nowrap px-6 py-4 font-medium">Rp {{ number_format($order->TOTAL_HARGA, 0, ',', '.') }}</td>
                         <td class="whitespace-nowrap px-6 py-4">
                             <span class="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800 border border-amber-200">
